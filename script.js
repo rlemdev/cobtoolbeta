@@ -5422,7 +5422,6 @@ async function alfaCartaPlaceClientData(opts){
     const lines=[cobtoolBuildRegistroContatoHeader(date, clienteNumero)];
     if(alfaLastKind==='fria'){
       lines.push('\u2014 Solicitei contato com o respons\u00e1vel pelo CNPJ;');
-      lines.push('\u2014 Aguardando retorno;');
     }
     if(alfaLastKind==='previsao-serasa'){
       lines.push('\u2014 Informei o cliente sobre '+qtd+' boleto(s) em atraso e seu devido registro no Serasa;');
@@ -11444,7 +11443,6 @@ function negSaveFromForm(){
   const btnCopiar=document.getElementById('rc-copiar-historico');
   const greetTime=document.getElementById('rc-greet-time');
   const greetId=document.getElementById('rc-greet-id');
-  const waiting=document.getElementById('rc-waiting');
   const KEY=cobtoolScopedStorageKey('cobtool_registro_contato_v1');
   let lastRandom='';
 
@@ -11492,8 +11490,7 @@ function negSaveFromForm(){
     const baseVal=String(ultimos?.value||'').trim();
     const sep='----------------------------------------------------------------------------------------------------------------';
     const dateStr=negFormatDateBR(new Date());
-    const tail=waiting?.checked ? ' — Aguardando retorno' : '';
-    const entry=`${dateStr}: ${resumoVal}${tail};`;
+    const entry=`${dateStr}: ${resumoVal};`;
     if(!baseVal){
       return `${entry}\n${sep}`;
     }
