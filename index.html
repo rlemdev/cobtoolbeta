@@ -1956,6 +1956,14 @@
                     <input class="form-check-input" type="checkbox" id="alfa-toggle-telefone" aria-label="Adicionar telefone">
                     <span class="form-check-label">ADICIONAR TELEFONE</span>
                   </label>
+                  <label class="form-check form-switch compact-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="alfa-toggle-codigo" aria-label="Adicionar código">
+                    <span class="form-check-label">ADICIONAR CÓDIGO</span>
+                  </label>
+                  <label class="form-check form-switch compact-switch mb-0">
+                    <input class="form-check-input" type="checkbox" id="alfa-toggle-razao" aria-label="Adicionar razão">
+                    <span class="form-check-label">ADICIONAR RAZÃO</span>
+                  </label>
                 </div>
                 <div class="row g-2">
                   <div class="col-12 col-lg-6 d-none" id="alfa-operador-wrap">
@@ -1982,6 +1990,14 @@
                     <label for="alfa-telefone-cliente">NÚMERO DO CLIENTE (OPCIONAL)</label>
                     <input id="alfa-telefone-cliente" class="guard-telefone" type="text" inputmode="tel" placeholder="+55 00 00000-0000" />
                   </div>
+                  <div class="col-12 col-lg-6 d-none" id="alfa-codigo-wrap">
+                    <label for="alfa-codigo-cliente">CÓDIGO DO CLIENTE (OPCIONAL)</label>
+                    <input id="alfa-codigo-cliente" type="text" inputmode="text" placeholder="INSIRA O CÓDIGO DO CLIENTE" />
+                  </div>
+                  <div class="col-12 col-lg-6 d-none" id="alfa-razao-wrap">
+                    <label for="alfa-razao-cliente">RAZÃO SOCIAL (OPCIONAL)</label>
+                    <input id="alfa-razao-cliente" type="text" inputmode="text" placeholder="INSIRA A RAZÃO SOCIAL" />
+                  </div>
                   <div class="col-12">
                     <label for="alfa-esfera">TEXTO DO ESFERA</label>
                     <textarea id="alfa-esfera" rows="10" placeholder="COLE O TEXTO DO ESFERA PARA GERAR A MENSAGEM"></textarea>
@@ -2005,6 +2021,10 @@
                 <button class="btn btn-sm" id="alfa-msg-previsao-serasa" type="button">
                   <i class="bi bi-exclamation-triangle" aria-hidden="true"></i>
                   <span>PREVISÃO + AVISO SERASA</span>
+                </button>
+                <button class="btn btn-sm" id="alfa-msg-auxilio-vendas" type="button">
+                  <i class="bi bi-person-lines-fill" aria-hidden="true"></i>
+                  <span>AUXÍLIO VENDAS</span>
                 </button>
                 <button class="btn btn-sm" id="alfa-msg-risco-bloqueio" type="button">
                   <i class="bi bi-shield-exclamation" aria-hidden="true"></i>

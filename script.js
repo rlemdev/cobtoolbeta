@@ -4414,8 +4414,14 @@ function cobtoolBuildRegistroContatoHeader(date, clienteNumero){
   const operadorSel=document.getElementById('alfa-operador');
   const cnpjIn=document.getElementById('alfa-cnpj');
   const telefoneToggle=document.getElementById('alfa-toggle-telefone');
+  const codigoToggle=document.getElementById('alfa-toggle-codigo');
+  const razaoToggle=document.getElementById('alfa-toggle-razao');
   const telefoneWrap=document.getElementById('alfa-telefone-wrap');
+  const codigoWrap=document.getElementById('alfa-codigo-wrap');
+  const razaoWrap=document.getElementById('alfa-razao-wrap');
   const telefoneClienteIn=document.getElementById('alfa-telefone-cliente');
+  const codigoClienteIn=document.getElementById('alfa-codigo-cliente');
+  const razaoClienteIn=document.getElementById('alfa-razao-cliente');
   const ufIn=document.getElementById('alfa-uf');
   const alfaUfChecks=[
     document.getElementById('alfa-uf-am'),
@@ -4432,6 +4438,7 @@ function cobtoolBuildRegistroContatoHeader(date, clienteNumero){
   const outArea=document.getElementById('alfa-out');
   const btnFria=document.getElementById('alfa-msg-fria');
   const btnPrevisaoSerasa=document.getElementById('alfa-msg-previsao-serasa');
+  const btnAuxilioVendas=document.getElementById('alfa-msg-auxilio-vendas');
   const btnRiscoBloqueio=document.getElementById('alfa-msg-risco-bloqueio');
   const btnRegularizacaoUrgente=document.getElementById('alfa-msg-regularizacao-urgente');
   const btnNotificacaoCobranca=document.getElementById('alfa-msg-notificacao-cobranca');
@@ -4448,7 +4455,7 @@ function cobtoolBuildRegistroContatoHeader(date, clienteNumero){
   const cqGerarBtn=document.getElementById('cq-gerar');
   const btnLimpar=document.getElementById('alfa-limpar');
   const btnCopiar=document.getElementById('alfa-copiar');
-  if(!operadorSel || !cnpjIn || !telefoneToggle || !telefoneWrap || !telefoneClienteIn || !esferaIn || !outWrap || !outArea || !btnFria || !btnPrevisaoSerasa || !btnRiscoBloqueio || !btnRegularizacaoUrgente) return;
+  if(!operadorSel || !cnpjIn || !telefoneToggle || !codigoToggle || !razaoToggle || !telefoneWrap || !codigoWrap || !razaoWrap || !telefoneClienteIn || !codigoClienteIn || !razaoClienteIn || !esferaIn || !outWrap || !outArea || !btnFria || !btnPrevisaoSerasa || !btnAuxilioVendas || !btnRiscoBloqueio || !btnRegularizacaoUrgente) return;
 
   let alfaLastKind='previsao-serasa';
   let alfaLastCtx=null;
@@ -4615,9 +4622,21 @@ function cobtoolBuildRegistroContatoHeader(date, clienteNumero){
     alfaSyncAtrasoFaixaWarning();
   }
 
+  function alfaSyncOptionalFieldVisibility(toggleEl, wrapEl){
+    if(!wrapEl) return;
+    wrapEl.classList.toggle('d-none', !toggleEl?.checked);
+  }
+
   function alfaSyncTelefoneVisibility(){
-    const show=!!telefoneToggle.checked;
-    telefoneWrap.classList.toggle('d-none', !show);
+    alfaSyncOptionalFieldVisibility(telefoneToggle, telefoneWrap);
+  }
+
+  function alfaSyncCodigoVisibility(){
+    alfaSyncOptionalFieldVisibility(codigoToggle, codigoWrap);
+  }
+
+  function alfaSyncRazaoVisibility(){
+    alfaSyncOptionalFieldVisibility(razaoToggle, razaoWrap);
   }
 
   alfaRestoreOperator();
@@ -4626,6 +4645,8 @@ function cobtoolBuildRegistroContatoHeader(date, clienteNumero){
   alfaPersistUfs();
   alfaSyncWarnings();
   alfaSyncTelefoneVisibility();
+  alfaSyncCodigoVisibility();
+  alfaSyncRazaoVisibility();
 
   function alfaEnsureRegistroModal(){
     if(alfaRegModal) return;
@@ -5414,6 +5435,20 @@ async function alfaCartaPlaceClientData(opts){
     return formatTelefoneCob(telefoneClienteIn?.value||'') || '[INSERIR NÚMERO DO CLIENTE]';
   }
 
+  function alfaAuxilioCodigo(){
+    if(!codigoToggle?.checked) return '[INSERIR CÓDIGO DO CLIENTE]';
+    return String(codigoClienteIn?.value||'').trim() || '[INSERIR CÓDIGO DO CLIENTE]';
+  }
+
+  function alfaAuxilioRazao(){
+    if(!razaoToggle?.checked) return '[INSERIR RAZÃO SOCIAL]';
+    return String(razaoClienteIn?.value||'').trim() || '[INSERIR RAZÃO SOCIAL]';
+  }
+
+  function alfaAuxilioOperatorName(){
+    return cobtoolGetCurrentOperator() || alfaNormalizeOperator(operadorSel.value||'').nome || 'OPERADOR';
+  }
+
   function alfaBuildRegistroText(){
     const date=alfaTodayBR();
     const qtd=alfaRegistroQtd();
@@ -5427,6 +5462,9 @@ async function alfaCartaPlaceClientData(opts){
       lines.push('\u2014 Informei o cliente sobre '+qtd+' boleto(s) em atraso e seu devido registro no Serasa;');
       lines.push('\u2014 Solicitei a previs\u00e3o para o pagamento;');
     }
+    if(alfaLastKind==='auxilio-vendas'){
+      lines.push('\u2014 Solicitei auxílio do representante de vendas com informações e contato do responsável pelo CNPJ;');
+    }
     if(alfaLastKind==='risco-bloqueio'){
       lines.push('\u2014 Informei o cliente sobre o risco de bloqueio de cr\u00e9dito integral em raz\u00e3o de '+qtd+' boleto(s) em atraso;');
       lines.push('\u2014 Solicitei que o pagamento seja feito ainda nessa semana;');
@@ -5435,11 +5473,8 @@ async function alfaCartaPlaceClientData(opts){
       lines.push('\u2014 Informei o cliente que seu cadastro tem registros no Serasa e atualmente est\u00e1 com o cr\u00e9dito bloqueado por raz\u00e3o do(s) '+qtd+' boleto(s) em atraso;');
       lines.push('\u2014 Solicitei o pagamento com imediato para evitar direcionamento ao setor jur\u00eddico;');
     }
-    if(lines.length===2){
-      lines.push('\u2014 Registro de contato realizado;');
-    }
     lines.push(COBTOOL_REGISTRO_CONTATO_SEPARATOR);
-    if(titulosSerasaElegiveis.length){
+    if(alfaLastKind!=='auxilio-vendas' && titulosSerasaElegiveis.length){
       lines.push('T\u00CDTULOS REGISTRADOS NO SERASA:');
       for(let i=0;i<titulosSerasaElegiveis.length;i++){
         lines.push('[INSERIR T\u00CDTULO]');
@@ -5592,7 +5627,7 @@ async function alfaCartaPlaceClientData(opts){
 
   function alfaBuildContext(kind='previsao-serasa'){
     const esferaRaw=String(esferaIn.value||'').trim();
-    const requireEsfera=kind!=='fria';
+    const requireEsfera=kind!=='fria' && kind!=='auxilio-vendas';
     if(requireEsfera && !esferaRaw){
       alert('Preencha o texto do esfera para gerar a mensagem.');
       return null;
@@ -5621,7 +5656,9 @@ async function alfaCartaPlaceClientData(opts){
       valorFmt:`R$ ${formatBR(esfera.total)}`,
       notasShortFmt,
       notaPrep,
-      notaTerm
+      notaTerm,
+      clienteCodigo:alfaAuxilioCodigo(),
+      clienteRazao:alfaAuxilioRazao()
     };
   }
 
@@ -5707,6 +5744,12 @@ async function alfaCartaPlaceClientData(opts){
       .trim()
       .replace(/^([\u0041-\u005A\u00C0-\u00DD])/u,m=>m.toLowerCase());
     return `${alfaBlockSaudacao()} ${pendencia}, ${avisoSerasa} ${alfaComposeCompromisso()}`;
+  }
+
+  function alfaComposeAuxilioVendas(ctx){
+    const saudacao=alfaGetSystemHour()<12 ? '*Bom dia*, tudo bom?' : '*Boa tarde*, tudo bom?';
+    const operadorNome=alfaAuxilioOperatorName();
+    return `${saudacao} Meu nome é *${operadorNome}*, falo do *setor financeiro* da *Prati-Donaduzzi*. Estou com dificuldade em contatar o cliente *${ctx.clienteCodigo}* - *${ctx.clienteRazao}*. Você teve contato com ele recentemente? Seria possível, por gentileza, informar o contato atualizado do responsável?`;
   }
 
   function alfaComposeRiscoCredito(ctx){
@@ -5810,13 +5853,14 @@ async function alfaCartaPlaceClientData(opts){
   function alfaGenerate(kind){
     const ctx=alfaBuildContext(kind);
     if(!ctx) return;
-    if(kind!=='fria' && (!ctx.qtd || ctx.qtd<1)){
+    if(kind!=='fria' && kind!=='auxilio-vendas' && (!ctx.qtd || ctx.qtd<1)){
       alert('Não consegui identificar os títulos no texto do esfera. Verifique se o conteúdo está no padrão esperado.');
       return;
     }
     let msg='';
     if(kind==='fria') msg=alfaComposeFria(ctx);
     if(kind==='previsao-serasa') msg=alfaComposePrevisaoSerasa(ctx);
+    if(kind==='auxilio-vendas') msg=alfaComposeAuxilioVendas(ctx);
     if(kind==='risco-bloqueio') msg=alfaComposeRiscoBloqueio(ctx);
     if(kind==='regularizacao-urgente') msg=alfaComposeRegularizacaoUrgente(ctx);
     if(!msg.trim()) return;
@@ -5839,6 +5883,8 @@ async function alfaCartaPlaceClientData(opts){
   function alfaClear(){
     cnpjIn.value='';
     telefoneClienteIn.value='';
+    codigoClienteIn.value='';
+    razaoClienteIn.value='';
     esferaIn.value='';
     alfaShowOutput('');
     alfaHideRegistroModal();
@@ -5851,6 +5897,7 @@ async function alfaCartaPlaceClientData(opts){
 
   btnFria.addEventListener('click',()=>alfaGenerate('fria'));
   btnPrevisaoSerasa.addEventListener('click',()=>alfaGenerate('previsao-serasa'));
+  btnAuxilioVendas.addEventListener('click',()=>alfaGenerate('auxilio-vendas'));
   btnRiscoBloqueio.addEventListener('click',()=>alfaGenerate('risco-bloqueio'));
   btnRegularizacaoUrgente.addEventListener('click',()=>alfaGenerate('regularizacao-urgente'));
   btnNotificacaoCobranca?.addEventListener('click',alfaShowCartaModal);
@@ -5878,6 +5925,8 @@ async function alfaCartaPlaceClientData(opts){
     }
   });
   telefoneToggle.addEventListener('change',alfaSyncTelefoneVisibility);
+  codigoToggle.addEventListener('change',alfaSyncCodigoVisibility);
+  razaoToggle.addEventListener('change',alfaSyncRazaoVisibility);
   alfaUfChecks.forEach(chk=>chk.addEventListener('change',()=>{
     alfaPersistUfs();
     alfaSyncWarnings();
