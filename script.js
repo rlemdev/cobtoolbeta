@@ -5882,6 +5882,7 @@ async function alfaCartaPlaceClientData(opts){
 
   function alfaClear(){
     cnpjIn.value='';
+    ufIn.value='';
     telefoneClienteIn.value='';
     codigoClienteIn.value='';
     razaoClienteIn.value='';
